@@ -8,6 +8,7 @@ import {SelfControlVault} from "../src/SelfControlVault.sol";
 contract SelfControlWalletTest is Test {
     SelfControlWalletFactory factory;
     address owner = address(0x1234);
+    address attacker = address(0x9999);
 
     function setUp() public { factory = new SelfControlWalletFactory(); }
 
@@ -18,9 +19,10 @@ contract SelfControlWalletTest is Test {
         assertEq(SelfControlWallet(payable(wallet)).signer(), owner);
     }
 
-    function testDirectEOACallCannotExecuteVault() public {
+    function testOnlyOwnerCanDirectlyExecuteVault() public {
         (address wallet,) = factory.createWallet(owner);
-        vm.expectRevert();
+        vm.prank(attacker);
+        vm.expectRevert(SelfControlWallet.UnauthorizedExecutor.selector);
         SelfControlWallet(payable(wallet)).executeVault(abi.encodeWithSelector(SelfControlVault.totalProtectedBalance.selector));
     }
 }

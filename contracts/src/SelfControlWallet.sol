@@ -5,14 +5,16 @@ import {Account} from "@openzeppelin/contracts/account/Account.sol";
 import {SignerECDSA} from "@openzeppelin/contracts/utils/cryptography/signers/SignerECDSA.sol";
 import {SelfControlVault} from "./SelfControlVault.sol";
 
-/// @dev ERC-4337 smart account whose only execution target is its immutable-in-practice vault.
-/// The owner ECDSA signer authorizes UserOperations; the backend/agent has no signing capability.
+/// @dev ERC-4337 smart account constrained to its own vault. V1 also permits the
+/// ECDSA owner to submit a normal wallet transaction directly; this keeps testnet
+/// operation usable without trusting a bundler while retaining ERC-4337 support.
 contract SelfControlWallet is Account, SignerECDSA {
     address public vault;
     address public immutable factory;
 
     error FactoryOnly();
     error InvalidVault();
+    error UnauthorizedExecutor();
 
     constructor(address owner_) SignerECDSA(owner_) {
         if (owner_ == address(0)) revert InvalidVault();
@@ -25,8 +27,11 @@ contract SelfControlWallet is Account, SignerECDSA {
         vault = vault_;
     }
 
-    function executeVault(bytes calldata data) external onlyEntryPointOrSelf returns (bytes memory result) {
+    function executeVault(bytes calldata data) external returns (bytes memory result) {
         if (vault == address(0)) revert InvalidVault();
+        if (msg.sender != signer() && msg.sender != address(entryPoint()) && msg.sender != address(this)) {
+            revert UnauthorizedExecutor();
+        }
         (bool ok, bytes memory returndata) = vault.call(data);
         if (!ok) assembly { revert(add(returndata, 32), mload(returndata)) }
         return returndata;

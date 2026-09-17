@@ -1,0 +1,1 @@
+{"name":"@allocash/agent","private":true,"type":"module","scripts":{"typecheck":"tsc --noEmit"},"dependencies":{},"devDependencies":{"typescript":"^5.9.2"}}

@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'build/**']
+  pull_request:
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: Install pinned Solidity dependencies
+        working-directory: contracts
+        run: |
+          forge install OpenZeppelin/openzeppelin-contracts@v5.4.0 --no-commit
+          forge install foundry-rs/forge-std@v1.9.7 --no-commit
+      - name: Build contracts
+        working-directory: contracts
+        run: forge build
+      - name: Run contract security tests
+        working-directory: contracts
+        run: forge test -vvv
+
+  types-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - name: Generate Prisma client
+        run: pnpm --filter @allocash/backend prisma:generate
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Build
+        run: pnpm build

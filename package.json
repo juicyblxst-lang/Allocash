@@ -1,0 +1,12 @@
+{
+  "name": "allocash",
+  "private": true,
+  "packageManager": "pnpm@10.12.4",
+  "scripts": {
+    "build": "pnpm --filter @allocash/frontend build && pnpm --filter @allocash/backend build",
+    "typecheck": "pnpm --filter @allocash/frontend typecheck && pnpm --filter @allocash/backend typecheck",
+    "contracts:test": "cd contracts && forge test -vv",
+    "contracts:build": "cd contracts && forge build",
+    "dev": "pnpm --parallel --filter @allocash/frontend --filter @allocash/backend dev"
+  }
+}

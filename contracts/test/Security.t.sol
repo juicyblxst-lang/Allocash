@@ -44,10 +44,10 @@ contract SecurityTest is Test {
 
     function testTemporaryLockExactExpiryAndFifteenMinuteBoundary() public {
         fund(); vm.prank(controller); vault.temporaryLock(1);
-        vm.warp(block.timestamp+SelfControlVault.ONE_HOUR()-1);
+        vm.warp(block.timestamp+1 hours-1);
         vm.expectRevert(SelfControlVault.NotExpired.selector); vault.expireTemporaryLock(1);
         vm.warp(block.timestamp+1); vault.expireTemporaryLock(1);
-        vm.warp(block.timestamp+SelfControlVault.RELOCK_AFTER_15_MIN()-1);
+        vm.warp(block.timestamp+15 minutes-1);
         vm.expectRevert(SelfControlVault.NotExpired.selector); vault.autoTemporaryRelock(1);
         vm.warp(block.timestamp+1); vault.autoTemporaryRelock(1);
         assertEq(uint8(vault.payments(1).state),uint8(SelfControlVault.PaymentState.TemporarilyLocked));

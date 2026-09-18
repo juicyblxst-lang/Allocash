@@ -1,0 +1,1 @@
+{"name":"@allocash/automation","private":true,"type":"module","scripts":{"run":"tsx relock.ts"},"dependencies":{"viem":"^2.51.0"},"devDependencies":{"tsx":"^4.19.3","typescript":"^5.9.2"}}

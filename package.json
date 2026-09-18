@@ -3,10 +3,13 @@
   "private": true,
   "packageManager": "pnpm@10.12.4",
   "scripts": {
-    "build": "pnpm --filter @allocash/frontend build && pnpm --filter @allocash/backend build",
-    "typecheck": "pnpm --filter @allocash/frontend typecheck && pnpm --filter @allocash/backend typecheck",
+    "build": "pnpm --filter @allocash/frontend build && pnpm --filter @allocash/backend build && pnpm --filter @allocash/agent typecheck && pnpm --filter @allocash/automation typecheck",
+    "typecheck": "pnpm --filter @allocash/frontend typecheck && pnpm --filter @allocash/backend typecheck && pnpm --filter @allocash/agent typecheck && pnpm --filter @allocash/automation typecheck",
     "contracts:test": "cd contracts && forge test -vv",
     "contracts:build": "cd contracts && forge build",
-    "dev": "pnpm --parallel --filter @allocash/frontend --filter @allocash/backend dev"
+    "dev": "pnpm --parallel --filter @allocash/frontend --filter @allocash/backend dev",
+    "db:deploy": "pnpm --filter @allocash/backend exec prisma migrate deploy",
+    "db:generate": "pnpm --filter @allocash/backend prisma:generate",
+    "automation:relock": "pnpm --filter @allocash/automation run"
   }
 }

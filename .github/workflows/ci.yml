@@ -39,5 +39,7 @@ jobs:
         run: pnpm --filter @allocash/backend prisma:generate
       - name: Typecheck
         run: pnpm typecheck
+      - name: Generate Prisma client again after typecheck
+        run: pnpm --filter @allocash/backend prisma:generate
       - name: Build
         run: pnpm build

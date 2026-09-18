@@ -1,0 +1,1 @@
+export const indexedEventNames = ['IncomingPayment','PresetCreated','PresetArchived','PresetDeleted','AllocationCreated','TemporaryLockStarted','TemporaryLockExpired','TemporaryLockRepeated','AllocationUnlocked','Withdrawal'] as const;

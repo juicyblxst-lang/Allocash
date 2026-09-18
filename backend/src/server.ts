@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
 import cron from 'node-cron';
 import webpush from 'web-push';
 import { PrismaClient } from '@prisma/client';
@@ -7,6 +8,7 @@ import { syncAll } from './indexer.js';
 
 const prisma=new PrismaClient();
 const app=Fastify({logger:true});
+await app.register(cors,{origin:true});
 const PORT=Number(process.env.PORT||8787);
 const pushEnabled=Boolean(process.env.VAPID_PUBLIC_KEY&&process.env.VAPID_PRIVATE_KEY&&process.env.VAPID_SUBJECT);
 if(pushEnabled) webpush.setVapidDetails(process.env.VAPID_SUBJECT!,process.env.VAPID_PUBLIC_KEY!,process.env.VAPID_PRIVATE_KEY!);

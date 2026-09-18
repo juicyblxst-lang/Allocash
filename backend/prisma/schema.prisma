@@ -13,4 +13,23 @@ model Allocation { id String @id @default(cuid()) cycleId String presetId String
 model LockRecord { id String @id @default(cuid()) allocationId String kind String startsAt DateTime endsAt DateTime allocation Allocation @relation(fields:[allocationId], references:[id], onDelete:Restrict) }
 model NotificationEvent { id String @id @default(cuid()) userId String type String message String scheduledAt DateTime deliveredAt DateTime? createdAt DateTime @default(now()) user User @relation(fields:[userId], references:[id], onDelete:Restrict) @@index([userId,scheduledAt,deliveredAt]) }
 model PushSubscription { id String @id @default(cuid()) userId String endpoint String p256dh String auth String createdAt DateTime @default(now()) user User @relation(fields:[userId], references:[id], onDelete:Restrict) @@unique([userId,endpoint]) }
+model ChainEvent {
+  id String @id @default(cuid())
+  uniqueKey String @unique
+  vaultAddress String
+  chainId Int
+  blockNumber String
+  blockHash String?
+  txHash String
+  logIndex Int
+  eventName String
+  createdAt DateTime @default(now())
+  @@index([vaultAddress,blockNumber])
+}
+model IndexerState {
+  id String @id @default(cuid())
+  vaultAddress String @unique
+  nextBlock String
+  updatedAt DateTime @updatedAt
+}
 model TransactionRecord { id String @id @default(cuid()) userId String txHash String @unique action String status String chainId Int createdAt DateTime @default(now()) confirmedAt DateTime? user User @relation(fields:[userId], references:[id], onDelete:Restrict) @@index([userId,createdAt]) }

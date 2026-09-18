@@ -39,7 +39,19 @@ Contract dependencies are pinned to OpenZeppelin Contracts v5.4.0 and the ERC-43
 
 ## Environment
 
-Copy `.env.example` to the appropriate local environment. Never commit private keys, seed phrases, VAPID private keys, database credentials, or production RPC credentials.
+Copy `.env.example` and supply deployment-specific values only outside Git. Never commit private keys, seed phrases, VAPID private keys, database credentials, or production RPC credentials.
+
+Required values after coding is complete: `VITE_FACTORY_ADDRESS` (deployed factory), `VITE_API_URL`, `VITE_VAPID_PUBLIC_KEY` for browser push, `DATABASE_URL`, `RPC_URL`, `VAPID_SUBJECT`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`. The external relock worker additionally needs `RELOCK_RELAYER_PRIVATE_KEY` and `ALLOCASH_VAULT_ADDRESSES`. The scheduled GitHub Actions relock workflow uses repository secrets `ALLOCASH_RPC_URL`, `ALLOCASH_RELOCK_RELAYER_PRIVATE_KEY`, and `ALLOCASH_VAULT_ADDRESSES`.
+
+## Deployment order
+
+1. Install dependencies and run CI locally/through GitHub Actions.
+2. Deploy `SelfControlWalletFactory` to BSC Testnet and record the factory address.
+3. Apply the Prisma baseline migration with `prisma migrate deploy` against the target PostgreSQL database.
+4. Configure backend RPC/database/Web Push values and start the backend so the on-chain indexer can catch up.
+5. Configure the frontend with the factory address and backend URL.
+6. Configure the external permissionless relock worker and its narrowly funded relayer account if automatic scheduling is desired. The relayer cannot unlock or withdraw funds; it can only call the permissionless relock function.
+7. Deploy the frontend and backend. Do not use production funds; V1 is BSC Testnet only.
 
 ## Testing strategy
 

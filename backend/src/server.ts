@@ -39,7 +39,7 @@ app.get('/v1/payments/:walletAddress',async(req)=>{
 });
 app.get('/v1/presets/:walletAddress',async(req)=>{
   const user=await prisma.user.findUnique({where:{walletAddress:(req.params as any).walletAddress},include:{presets:{include:{containers:true,archiveEvents:true},orderBy:{createdAt:'desc'}}}});
-  return {presets:user?.presets??[]};
+  return {presets:(user?.presets??[]).map(p=>({...p,containers:p.containers.map(c=>({...c,lockDurationSeconds:c.lockDurationSeconds.toString()}))}))};
 });
 app.get('/v1/notifications/:walletAddress',async(req)=>{
   const user=await prisma.user.findUnique({where:{walletAddress:(req.params as any).walletAddress}});

@@ -6,11 +6,10 @@ import {SelfControlWalletFactory} from "../src/SelfControlWallet.sol";
 
 contract Deploy is Script {
     function run() external returns (SelfControlWalletFactory factory) {
-        address owner = vm.envAddress("DEPLOY_OWNER");
-        vm.startBroadcast();
-        factory = new SelfControlWalletFactory();
+        uint256 deployerKey=vm.envUint("DEPLOYER_PRIVATE_KEY");
+        vm.startBroadcast(deployerKey);
+        factory=new SelfControlWalletFactory();
         vm.stopBroadcast();
-        console2.log("SelfControlWalletFactory", address(factory));
-        console2.log("Configured owner", owner);
+        console2.log("SelfControlWalletFactory",address(factory));
     }
 }

@@ -86,6 +86,15 @@ contract SecurityTest is Test {
         vm.prank(controller); vm.expectRevert(SelfControlVault.ActiveFunds.selector); vault.archivePreset(pid,"used");
     }
 
+    function testPresetRulesRemainImmutableAcrossLifecycleChanges() public {
+        uint256 pid=presetWithLock(0);
+        (SelfControlVault.Preset memory p,SelfControlVault.Container[] memory cs)=vault.preset(pid);
+        assertEq(p.name,"Test"); assertEq(cs.length,2); assertEq(cs[0].percentage,5000); assertEq(cs[1].percentage,5000);
+        vm.prank(controller); vault.archivePreset(pid,"retired");
+        (,SelfControlVault.Container[] memory afterArchive)=vault.preset(pid);
+        assertEq(afterArchive[0].percentage,5000); assertEq(afterArchive[1].percentage,5000);
+    }
+
     function testDeleteDoesNotEraseChainRecordAndBlocksActiveFunds() public {
         uint256 pid=presetWithLock(0); fund(); vm.prank(controller); vault.applyPreset(1,pid);
         vm.prank(controller); vm.expectRevert(SelfControlVault.ActiveFunds.selector); vault.deletePreset(pid);

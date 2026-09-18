@@ -50,25 +50,25 @@ contract SecurityTest is Test {
         vm.warp(block.timestamp+15 minutes-1);
         vm.expectRevert(SelfControlVault.NotExpired.selector); vault.autoTemporaryRelock(1);
         vm.warp(block.timestamp+1); vault.autoTemporaryRelock(1);
-        assertEq(uint8(vault.payments(1).state),uint8(SelfControlVault.PaymentState.TemporarilyLocked));
+        (,,,,,SelfControlVault.PaymentState relockState,)=vault.payments(1); assertEq(uint8(relockState),uint8(SelfControlVault.PaymentState.TemporarilyLocked));
     }
 
     function testRepeatedRelockCanRepeat() public {
         fund(); vm.prank(controller); vault.temporaryLock(1);
-        vm.warp(block.timestamp+SelfControlVault.ONE_HOUR()+SelfControlVault.RELOCK_AFTER_15_MIN());
+        vm.warp(block.timestamp+1 hours+15 minutes);
         vault.autoTemporaryRelock(1);
         vm.warp(block.timestamp+SelfControlVault.ONE_HOUR()+SelfControlVault.RELOCK_AFTER_15_MIN());
         vault.autoTemporaryRelock(1);
-        assertGt(vault.payments(1).temporaryUnlockAt,block.timestamp);
+        (,,,uint64 repeatedUntil,, ,)=vault.payments(1); assertGt(repeatedUntil,block.timestamp);
     }
 
     function testPerPaymentIsolation() public {
         uint256 pid=presetWithLock(0);
         fund(); fund();
         vm.prank(controller); vault.applyPreset(1,pid);
-        assertEq(uint8(vault.payments(2).state),uint8(SelfControlVault.PaymentState.PendingDecision));
-        assertEq(vault.payments(2).allocationCount,0);
-        assertEq(vault.payments(1).allocationCount,2);
+        (,,,,,SelfControlVault.PaymentState secondState,)=vault.payments(2); assertEq(uint8(secondState),uint8(SelfControlVault.PaymentState.PendingDecision));
+        (,,,,,,uint256 secondCount)=vault.payments(2); assertEq(secondCount,0);
+        (,,,,,,uint256 firstCount)=vault.payments(1); assertEq(firstCount,2);
     }
 
     function testZeroAmountAndInvalidPercentagesAreRejected() public {
@@ -101,7 +101,7 @@ contract SecurityTest is Test {
         uint256 aid=vault.paymentAllocations(1)[0]; vm.prank(controller); vault.withdraw(aid,payable(recipient),0.5 ether);
         uint256 aid2=vault.paymentAllocations(1)[1]; vm.prank(controller); vault.withdraw(aid2,payable(recipient),0.5 ether);
         vm.prank(controller); vault.deletePreset(pid);
-        (SelfControlVault.Preset memory p,)=vault.preset(pid); assertTrue(p.deleted); assertEq(vault.payments(1).allocationCount,2);
+        (SelfControlVault.Preset memory p,)=vault.preset(pid); assertTrue(p.deleted); (,,,,,,uint256 firstCount2)=vault.payments(1); assertEq(firstCount2,2);
     }
 
     function testWalletCannotBeUsedByAttackerAndIsBoundToVault() public {

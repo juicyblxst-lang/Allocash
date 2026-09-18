@@ -33,6 +33,7 @@ app.post('/v1/notifications/subscribe',async(req,reply)=>{
   return {ok:true};
 });
 
+app.post('/v1/transactions',async(req,reply)=>{const body=z.object({walletAddress:z.string().regex(/^0x[a-fA-F0-9]{40}$/),txHash:z.string().regex(/^0x[a-fA-F0-9]{64}$/),action:z.string(),status:z.enum(['CONFIRMED','FAILED']),confirmedAt:z.string().optional()}).parse(req.body);const user=await prisma.user.findUnique({where:{walletAddress:body.walletAddress}});if(!user)return reply.code(404).send({error:'USER_NOT_REGISTERED'});await prisma.transactionRecord.upsert({where:{txHash:body.txHash},update:{status:body.status,confirmedAt:body.confirmedAt?new Date(body.confirmedAt):undefined},create:{userId:user.id,txHash:body.txHash,action:body.action,status:body.status,chainId:97,confirmedAt:body.confirmedAt?new Date(body.confirmedAt):new Date()}});return {ok:true};});
 app.get('/v1/payments/:walletAddress',async(req)=>{
   const user=await prisma.user.findUnique({where:{walletAddress:(req.params as any).walletAddress},include:{incomingPayments:{orderBy:{receivedAt:'desc'},include:{cycle:{include:{allocations:{include:{preset:true}}}}}}});
   return {payments:user?.incomingPayments??[]};

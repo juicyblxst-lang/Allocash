@@ -33,8 +33,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
-      - run: pnpm install
+      - run: pnpm install --no-frozen-lockfile
       - name: Generate Prisma client
         run: pnpm --filter @allocash/backend prisma:generate
       - name: Typecheck

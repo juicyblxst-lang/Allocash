@@ -63,7 +63,7 @@ async function processLog(userId:string,vaultAddress:string,l:Log){
     await syncPreset(userId,vaultAddress,a.presetId);
   } else if(name==='PresetArchived' || name==='PresetDeleted'){
     const p=await prisma.preset.findUnique({where:{userId_onchainPresetId:{userId,onchainPresetId:a.presetId?.toString()??'0'}}});
-    if(p) await prisma.preset.update({where:{id:p.id},data:{archived:name==='PresetArchived'?true:p.archived,deleted:name==='PresetDeleted'?true:p.deleted}});
+    if(p){await prisma.preset.update({where:{id:p.id},data:{archived:name==='PresetArchived'?true:p.archived,deleted:name==='PresetDeleted'?true:p.deleted}});if(name==='PresetArchived')await prisma.presetArchiveEvent.create({data:{presetId:p.id,reason:a.reason}});}
   } else if(name==='TemporaryLockStarted' || name==='TemporaryLockRepeated'){
     const p=await prisma.incomingPayment.findUnique({where:{userId_chainPaymentId:{userId,chainPaymentId:a.paymentId.toString()}},include:{cycle:true}});
     if(p?.cycle) await prisma.$transaction([

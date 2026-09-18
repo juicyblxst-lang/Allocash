@@ -62,7 +62,7 @@ contract SelfControlVaultTest is Test {
         vm.warp(block.timestamp + 14 minutes + 59 seconds);
         vm.expectRevert(SelfControlVault.NotExpired.selector);
         vault.autoTemporaryRelock(1);
-        vm.warp(block.timestamp + 1 second);
+        vm.warp(block.timestamp + 1);
         vault.autoTemporaryRelock(1);
         assertEq(uint8(vault.payments(1).state), uint8(SelfControlVault.PaymentState.TemporarilyLocked));
     }

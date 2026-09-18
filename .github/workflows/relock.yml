@@ -25,5 +25,5 @@ jobs:
           RPC_URL: ${{ secrets.ALLOCASH_RPC_URL }}
           RELOCK_RELAYER_PRIVATE_KEY: ${{ secrets.ALLOCASH_RELOCK_RELAYER_PRIVATE_KEY }}
           ALLOCASH_VAULT_ADDRESSES: ${{ secrets.ALLOCASH_VAULT_ADDRESSES }}
-          RELOCK_LOOKBACK_BLOCKS: '5000'
+          RELOCK_LOOKBACK_BLOCKS: '20000'
         run: pnpm --filter @allocash/automation run
